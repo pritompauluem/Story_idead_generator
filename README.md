@@ -55,9 +55,9 @@ story-idea-generator/
     ```
 
 4.  **Set up your Gemini API Key:**
-    Create a `.env` file in the root directory and add your API key:
+    In the Story_idead_generator/app/ai_integration.py section add your API key:
     ```
-    GEMINI_API_KEY=your_api_key_here
+        api_key ="your_api_key_here"
     ```
 
 ## Usage

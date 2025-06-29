@@ -4,7 +4,7 @@ import google.generativeai as genai
 def configure_ai():
     """Configures the Generative AI model with the API key."""
     # The API key is hardcoded here as requested.
-    api_key = "AIzaSyCBg8uE3BVDrxCuUcbO6IfHlz5i4JLN9zU"
+    api_key = "Enter YOUR Gemini API key"
     if not api_key:
         raise ValueError("GEMINI_API_KEY is not set.")
     genai.configure(api_key=api_key)

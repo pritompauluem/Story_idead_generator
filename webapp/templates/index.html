@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Story Idea Generator</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Roboto:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Link to the stylesheet -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Story Idea Generator</h1>
+        <p>
+          Unleash your creativity. Select your ingredients and get a unique
+          story prompt!
+        </p>
+      </header>
+
+      <main>
+        <!-- Form for users to select story elements -->
+        <form id="idea-form">
+          <div class="form-group">
+            <label for="genre-select">Choose a Genre:</label>
+            <select id="genre-select" name="genre" class="styled-select">
+              <!-- Options will be populated by JavaScript -->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="theme-select">Choose a Theme:</label>
+            <select id="theme-select" name="theme" class="styled-select">
+              <!-- Options will be populated by JavaScript -->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="character-select">Choose a Character Type:</label>
+            <select
+              id="character-select"
+              name="character"
+              class="styled-select"
+            >
+              <!-- Options will be populated by JavaScript -->
+            </select>
+          </div>
+
+          <button type="submit" class="btn-generate">
+            Generate Story Idea
+          </button>
+        </form>
+
+        <!-- Loading spinner, hidden by default -->
+        <div id="loading-spinner" class="hidden">
+          <div class="spinner"></div>
+          <p>Crafting your story idea...</p>
+        </div>
+
+        <!-- Container to display the generated story idea, hidden by default -->
+        <div id="story-idea-container" class="hidden">
+          <h2>Your Story Idea</h2>
+          <div id="story-idea-result">
+            <p></p>
+          </div>
+        </div>
+      </main>
+
+      <footer>
+        <p>Powered by Gemini API</p>
+      </footer>
+    </div>
+
+    <script>
+      // Wait for the DOM to be fully loaded before executing scripts
+      document.addEventListener("DOMContentLoaded", function () {
+        const ideaForm = document.getElementById("idea-form");
+        const genreSelect = document.getElementById("genre-select");
+        const themeSelect = document.getElementById("theme-select");
+        const characterSelect = document.getElementById("character-select");
+        const loadingSpinner = document.getElementById("loading-spinner");
+        const storyIdeaContainer = document.getElementById(
+          "story-idea-container"
+        );
+        const storyIdeaResult = document.querySelector("#story-idea-result p");
+
+        // --- Function to populate select dropdowns ---
+        // Fetches data from the Flask backend and creates <option> elements
+        const populateSelect = (selectElement, items) => {
+          selectElement.innerHTML = ""; // Clear existing options
+          items.forEach((item) => {
+            const option = document.createElement("option");
+            option.value = item;
+            option.textContent = item;
+            selectElement.appendChild(option);
+          });
+        };
+
+        // --- Fetch initial data for dropdowns when the page loads ---
+        // The Flask app should have a route that returns this data as JSON
+        fetch("/get-options")
+          .then((response) => response.json())
+          .then((data) => {
+            populateSelect(genreSelect, data.genres);
+            populateSelect(themeSelect, data.themes);
+            populateSelect(characterSelect, data.characters);
+          })
+          .catch((error) => {
+            console.error("Error fetching initial options:", error);
+            storyIdeaResult.textContent =
+              "Error: Could not load story options. Please try refreshing the page.";
+            storyIdeaContainer.classList.remove("hidden");
+          });
+
+        // --- Event listener for form submission ---
+        ideaForm.addEventListener("submit", function (event) {
+          event.preventDefault(); // Prevent the default form submission
+
+          // Show loading spinner and hide previous result
+          loadingSpinner.classList.remove("hidden");
+          storyIdeaContainer.classList.add("hidden");
+
+          const formData = new FormData(ideaForm);
+          const data = {
+            genre: formData.get("genre"),
+            theme: formData.get("theme"),
+            character: formData.get("character"),
+          };
+
+          // --- Fetch the story idea from the backend ---
+          fetch("/generate", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+          })
+            .then((response) => response.json())
+            .then((result) => {
+              // Hide loading spinner
+              loadingSpinner.classList.add("hidden");
+
+              // Display the result
+              if (result.story_idea) {
+                storyIdeaResult.textContent = result.story_idea;
+              } else if (result.error) {
+                storyIdeaResult.textContent = `Error: ${result.error}`;
+              }
+              storyIdeaContainer.classList.remove("hidden");
+            })
+            .catch((error) => {
+              // Hide loading spinner and show error
+              loadingSpinner.classList.add("hidden");
+              storyIdeaResult.textContent =
+                "An unexpected error occurred. Please try again.";
+              storyIdeaContainer.classList.remove("hidden");
+              console.error("Error during fetch:", error);
+            });
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,3 @@
+{
+  "story_idea_prompt": "Generate a short, one-paragraph story idea based on the following elements:\n\nGenre: {genre}\nTheme: {theme}\nCharacter: {character}\n\nProvide an engaging and creative starting point for a story."
+}

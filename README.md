@@ -3,7 +3,7 @@
 This project is a web application that generates creative writing prompts and story ideas using the Gemini API. Users can select a genre, theme, and character type to generate a unique story starter.
 
 ## Project Structure
-
+```html
 
 story-idea-generator/
 │
@@ -33,7 +33,7 @@ story-idea-generator/
 │
 └── tests/
 └── test_generator.py
-
+```
 
 ## Setup
 
